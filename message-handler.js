@@ -37,7 +37,7 @@ function formatAssignments(assignments) {
 // Format courses into a text message
 function formatCourses(courses) {
     if (courses.length === 0) {
-        return '❌ No active courses found.';
+        return 'No active courses found.';
     }
 
     let message = `📚 YOUR COURSES (${courses.length})\n\n`;
@@ -53,7 +53,7 @@ function formatCourses(courses) {
 // Format grades into a text message
 function formatGrades(grades) {
     if (grades.length === 0) {
-        return '❌ No grades found.';
+        return 'No grades found.';
     }
 
     let message = `📊 YOUR GRADES\n\n`;
@@ -90,7 +90,7 @@ async function handleIncomingMessage() {
         console.log(`Text: "${message.text}"`);
         console.log('========================\n');
 
-        // Skip messages from yourself
+        // Skip messages sent messages
         if (message.isFromMe) {
             console.log('⚠️  Message is from you - skipping\n');
             return { type: 'skipped', reason: 'Message from self' };
@@ -132,8 +132,8 @@ async function handleIncomingMessage() {
                 await sendMessage(responseText);
 
             } catch (sendError) {
-                console.error('❌ Failed to send message:', sendError.message);
-                console.log('⚠️  Data fetched but not sent back to user\n');
+                console.error('Failed to send message:', sendError.message);
+                console.log('Data fetched but not sent back to user\n');
             }
 
             return { type: 'assignments', data: assignments, sender: message.from, sent: true };
@@ -180,10 +180,10 @@ async function handleIncomingMessage() {
             };
 
         } else {
-            console.log('❌ No keyword detected');
+            console.log('No keyword detected');
             console.log('Try keywords like: assignments, courses, grades\n');
 
-            const responseText = '❓ I didn\'t understand that. Try:\n\n• "assignments" - View homework\n• "courses" - List classes\n• "grades" - View scores';
+            const responseText = ' I didn\'t understand that. Try:\n\n• "assignments" - View homework\n• "courses" - List classes\n• "grades" - View scores';
             await sendMessage(responseText);
 
             return {
@@ -195,7 +195,7 @@ async function handleIncomingMessage() {
         }
 
     } catch (error) {
-        console.error('❌ Error handling message:', error.message);
+        console.error('Error handling message:', error.message);
         return { type: 'error', error: error.message };
     }
 }
