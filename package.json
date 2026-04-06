@@ -4,7 +4,7 @@
   "description": "Automated Canvas assistant via text message",
   "main": "main-polling.js",
   "scripts": {
-    "start": "node main-polling.js",
+    "start": "node main.js",
     "test": "node main.js"
   },
   "private": true,
