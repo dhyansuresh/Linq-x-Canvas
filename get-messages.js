@@ -5,9 +5,8 @@ const LINQ_API_TOKEN = process.env.LINQ_API_TOKEN;
 const LINQ_PHONE = process.env.LINQ_PHONE_NUMBER;
 const LINQ_MESSAGES_URL = process.env.LINQ_MESSAGES_URL;
 
-
+// Get all messages.
 async function getMessages() {
-
     try {
         const response = await fetch(`${LINQ_MESSAGES_URL}`, {
             method: 'GET',
@@ -21,27 +20,61 @@ async function getMessages() {
         const data = await response.json();
 
         if (response.ok) {
-            console.log("Messages retrieved")
-            console.log(data)
-            console.log(data.messages.length)
-            for (let i = 0; i < data.messages.length; i++) {
-                for (let j = 0; j < data.messages[i].parts.length; j++) {
-                    const part = data.messages[i].parts[j];
-                    if (part.type === 'text') {
-                        console.log(part.value)
-                    }
-                }
-            }
-
+            return data
         } else {
-            console.log('Error:', response.status)
-            console.log(data)
+            throw new Error(`Error status: ${response.status}`)
         }
     } catch (error) {
          console.error(error.message)
+        throw error
     }
 }
 
+// Get the most recently sent message:
+async function getMostRecentMessage() {
+    try {
+        const data = await getMessages();
 
-getMessages()
+        if (!data.messages || data.messages.length === 0) {
+            throw new Error('No messages found');
+        }
+
+        // Sort by created_at timestamp (newest first)
+        const sortedMessages = data.messages.sort((a, b) => {
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        const mostRecent = sortedMessages[0];
+
+        // Extract text from all text parts
+        let text = '';
+        if (mostRecent.parts && mostRecent.parts.length > 0) {
+            for (let j = 0; j < mostRecent.parts.length; j++) {
+                const part = mostRecent.parts[j];
+                if (part.type === 'text') {
+                    text += part.value + ' ';
+                }
+            }
+        }
+
+        return {
+            text: text.trim(),
+            timestamp: mostRecent.created_at,
+            messageId: mostRecent.id,
+            from: mostRecent.from_handle.handle,
+            isFromMe: mostRecent.is_from_me,
+            fullMessage: mostRecent
+        };
+    } catch (error) {
+        console.error('Error getting most recent message:', error.message);
+        throw error;
+    }
+}
+
+module.exports = {
+    getMessages,
+    getMostRecentMessage
+};
+
+
 

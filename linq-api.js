@@ -5,7 +5,7 @@ const LINQ_API_TOKEN = process.env.LINQ_API_TOKEN;
 const LINQ_PHONE = process.env.LINQ_PHONE_NUMBER;
 const LINQ_BASE_URL = process.env.LINQ_BASE_URL;
 
-async function sendTestMessage() {
+async function sendMessage(toPhoneNumber, messageText) {
     const YOUR_PHONE = '+14074700656';
 
     try {
@@ -22,7 +22,7 @@ async function sendTestMessage() {
                     parts: [
                         {
                             type: 'text',
-                            value: 'hello friends!'
+                            value: messageText
                         }
                     ]
                 }
@@ -45,4 +45,6 @@ async function sendTestMessage() {
     }
 }
 
-sendTestMessage();
+module.exports = {
+    sendMessage
+};

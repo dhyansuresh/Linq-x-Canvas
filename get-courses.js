@@ -36,4 +36,6 @@ async function getCourses() {
   }
 }
 
-getCourses();
+module.exports = {
+  getCourses
+};

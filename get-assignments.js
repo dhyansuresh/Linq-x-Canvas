@@ -6,7 +6,7 @@ const CANVAS_URL = process.env.CANVAS_URL;
 
 async function getUpcomingAssignments() {
     try {
-        // Step 1: Get all active courses
+
         console.log('Fetching courses...\n');
         const coursesResponse = await fetch(`${CANVAS_URL}/courses?enrollment_state=active`, {
             headers: { 'Authorization': `Bearer ${CANVAS_TOKEN}` }
@@ -64,4 +64,6 @@ async function getUpcomingAssignments() {
     }
 }
 
-getUpcomingAssignments();
+module.exports = {
+    getUpcomingAssignments
+};
