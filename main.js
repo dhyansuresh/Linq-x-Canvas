@@ -83,7 +83,7 @@ async function startBot() {
         const timestamp = new Date().toLocaleString();
         console.log(`[${timestamp}] 🔍 Checking for new messages...`);
         await checkForMessages();
-    }, 5000); // 5 seconds
+    }, 2000); // 2 seconds
 }
 
 // Handle graceful shutdown
