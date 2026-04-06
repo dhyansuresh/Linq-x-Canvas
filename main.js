@@ -4,7 +4,7 @@ const fs = require('fs');
 // Track the last processed message ID to avoid duplicates
 let lastProcessedMessageId = null;
 
-// Load last processed message ID from file (persists across restarts)
+// Load last processed message ID from file
 function loadLastMessageId() {
     try {
         if (fs.existsSync('last-message.txt')) {
