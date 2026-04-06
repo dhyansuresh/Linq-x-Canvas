@@ -17,7 +17,7 @@ async function getUpcomingAssignments() {
         console.log('=== UPCOMING ASSIGNMENTS ===\n');
 
         const now = new Date();
-        let totalAssignments = 0;
+        let allAssignments = [];  // ✅ Store assignments in array
 
         for (const course of courses) {
             // Fetch assignments for this course
@@ -35,6 +35,15 @@ async function getUpcomingAssignments() {
                 return dueDate > now;
             });
 
+            // Add course info and push to allAssignments
+            upcoming.forEach(assignment => {
+                allAssignments.push({
+                    ...assignment,
+                    courseName: course.name,
+                    courseCode: course.course_code
+                });
+            });
+
             // Display upcoming assignments for this course
             if (upcoming.length > 0) {
                 console.log(`📚 ${course.name}\n`);
@@ -47,20 +56,21 @@ async function getUpcomingAssignments() {
                     console.log(`      Due: ${dueDate.toLocaleDateString()} at ${dueDate.toLocaleTimeString()}`);
                     console.log(`      Days until due: ${daysUntilDue}`);
                     console.log(`      Points: ${assignment.points_possible || 'N/A'}\n`);
-
-                    totalAssignments++;
                 });
             }
         }
 
-        if (totalAssignments === 0) {
+        if (allAssignments.length === 0) {
             console.log('🎉 No upcoming assignments! You\'re all caught up.\n');
         } else {
-            console.log(`\nTotal upcoming assignments: ${totalAssignments}`);
+            console.log(`\nTotal upcoming assignments: ${allAssignments.length}`);
         }
+
+        return allAssignments;  // RETURN the assignments!
 
     } catch (error) {
         console.error('Error:', error.message);
+        throw error;  //  Throw so message-handler can catch it
     }
 }
 

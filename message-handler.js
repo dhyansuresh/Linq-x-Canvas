@@ -1,6 +1,7 @@
 const { getMostRecentMessage } = require('./get-messages');
 const { getUpcomingAssignments } = require('./get-assignments');
 const { getCourses } = require('./get-courses');
+const { getGrades } = require('./get-grades');
 const { sendMessage } = require('./linq-api');
 
 // Format assignments into a text message
@@ -44,6 +45,33 @@ function formatCourses(courses) {
     courses.forEach((course, index) => {
         message += `${index + 1}. ${course.name}\n`;
         message += `   Code: ${course.course_code}\n\n`;
+    });
+
+    return message.trim();
+}
+
+// Format grades into a text message
+function formatGrades(grades) {
+    if (grades.length === 0) {
+        return '❌ No grades found.';
+    }
+
+    let message = `📊 YOUR GRADES\n\n`;
+
+    grades.forEach((grade, index) => {
+        message += `${index + 1}. ${grade.courseName}\n`;
+
+        if (grade.currentScore !== null) {
+            message += `   📈 Current: ${grade.currentScore}%`;
+            if (grade.currentGrade) {
+                message += ` (${grade.currentGrade})`;
+            }
+            message += '\n';
+        } else {
+            message += `   📈 Current: No grade yet\n`;
+        }
+
+        message += '\n';
     });
 
     return message.trim();
@@ -97,9 +125,16 @@ async function handleIncomingMessage() {
             }
 
             // Format and send response back via Linq
-            const responseText = formatAssignments(assignments);
-            console.log('📤 Sending response back to:', message.from);
-            await sendMessage(message.from, responseText);
+            try {
+                const responseText = formatAssignments(assignments);
+                console.log('📝 Message preview:', responseText.substring(0, 100) + '...');
+
+                await sendMessage(responseText);
+
+            } catch (sendError) {
+                console.error('❌ Failed to send message:', sendError.message);
+                console.log('⚠️  Data fetched but not sent back to user\n');
+            }
 
             return { type: 'assignments', data: assignments, sender: message.from, sent: true };
 
@@ -119,22 +154,27 @@ async function handleIncomingMessage() {
 
             // Format and send response back via Linq
             const responseText = formatCourses(courses);
-            console.log('📤 Sending response back to:', message.from);
-            await sendMessage(message.from, responseText);
+            console.log('📝 Message preview:', responseText.substring(0, 100) + '...');
+
+            await sendMessage(responseText);
 
             return { type: 'courses', data: courses, sender: message.from, sent: true };
 
         } else if (text.includes('grade') || text.includes('score')) {
             console.log('🔍 Detected keyword: GRADES');
-            console.log('⚠️  Grades API not yet implemented\n');
+            console.log('Fetching grades from Canvas...\n');
 
-            const responseText = '📊 Grades feature coming soon! Try "assignments" or "courses" instead.';
-            console.log('📤 Sending response back to:', message.from);
-            await sendMessage(message.from, responseText);
+            const grades = await getGrades();
+
+            // Format and send response back via Linq
+            const responseText = formatGrades(grades);
+            console.log('📝 Message preview:', responseText.substring(0, 100) + '...');
+
+            await sendMessage(responseText);
 
             return {
                 type: 'grades',
-                message: 'Grades feature coming soon!',
+                data: grades,
                 sender: message.from,
                 sent: true
             };
@@ -143,9 +183,8 @@ async function handleIncomingMessage() {
             console.log('❌ No keyword detected');
             console.log('Try keywords like: assignments, courses, grades\n');
 
-            const responseText = '❓ I didn\'t understand that. Try:\n\n• "assignments" - View homework\n• "courses" - List classes\n• "grades" - View scores (coming soon)';
-            console.log('📤 Sending response back to:', message.from);
-            await sendMessage(message.from, responseText);
+            const responseText = '❓ I didn\'t understand that. Try:\n\n• "assignments" - View homework\n• "courses" - List classes\n• "grades" - View scores';
+            await sendMessage(responseText);
 
             return {
                 type: 'unknown',
